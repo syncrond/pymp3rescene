@@ -17,9 +17,9 @@ def search_by_release(names):
             data = response.json()
         except:
             raise
-
-        if 'resultsCount' not in data or data['resultsCount'] == 1:
+        if 'resultsCount' in data and int(data['resultsCount']) >= 1:
             return data['results']
+
     return None
 
 
@@ -34,7 +34,7 @@ def search_by_name(names):
     except:
         raise
 
-    if 'resultsCount' not in data or data['resultsCount'] == 1:
+    if 'resultsCount' in data and int(data['resultsCount']) >= 1:
         return data['results']
     return None
 
@@ -88,5 +88,5 @@ def download_srr(rls, path=None):
                     local_file.flush()
     except:
         raise
-        
+
     return path
