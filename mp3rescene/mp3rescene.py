@@ -136,9 +136,8 @@ def search_srrdb(rlsnames = [], names = []):
         print("%s" % SUCCESS)
 
     if len(results) > 1:
-        #we need to work out which rls to use
-        #check filename/size/etc
-        print("\t\t %s More than one release found matching release name %s This is most likely an issue, please report it on IRC (#srrdb @ irc.efnet.net)." % (FAIL, results))
+        # need to work out which rls to use
+        print("\t\t %s More than one release found matching release name %s" % (FAIL, results))
         return False
 
     release = results[0]
