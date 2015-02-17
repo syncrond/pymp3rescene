@@ -9,6 +9,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from optparse import OptionParser
 from urllib import pathname2url
+from collections import OrderedDict
 import sys
 import os
 import re
@@ -186,7 +187,8 @@ def get_release_name(dir):
         possible_rls_names.append(intname)
     directory_name = os.path.basename(os.path.normpath(dir))
     possible_rls_names.append(pathname2url(directory_name))
-    possible_rls_names = list(set(possible_rls_names))
+    possible_rls_names = list(OrderedDict.fromkeys(possible_rls_names))
+
     # find release by release name
     rls = search_srrdb(possible_rls_names)
     if not rls:
