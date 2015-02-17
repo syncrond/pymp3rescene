@@ -149,14 +149,14 @@ def search_srrdb(rlsnames = [], names = []):
 def get_name_from_00_file(filename):
     base = os.path.basename(filename)
     name = os.path.splitext(base)[0]
-    if '00-' in name:
-        name = name[3:]
-    elif '00_' in name:
-        name = name[3:]
-    elif '000-' in name:
+    if '000-' in name:
         name = name[4:]
     elif '000_' in name:
         name = name[4:]
+    elif '00-' in name:
+        name = name[3:]
+    elif '00_' in name:
+        name = name[3:]
     return name
 
 def get_release_name(dir):
