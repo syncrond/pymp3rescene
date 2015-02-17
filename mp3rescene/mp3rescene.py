@@ -191,10 +191,10 @@ def get_release_name(dir):
     rls = search_srrdb(possible_rls_names)
     if not rls:
         if len(possible_rls_names) > 0:
-            names = re.split('\W+', possible_rls_names[0])
+            names = re.split('[^a-zA-Z0-9]+', possible_rls_names[0])
             rls = search_srrdb([], names)
     if not rls:
-        names = re.split('\W+', directory_name)
+        names = re.split('[^a-zA-Z0-9]+', directory_name)
         rls = search_srrdb([], names)
 
     return rls
