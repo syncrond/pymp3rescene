@@ -28,7 +28,7 @@ SUCCESS = Fore.GREEN + "  [SUCCESS] " + Fore.RESET
 FAIL = Fore.RED + "  [FAIL] " + Fore.RESET
 missing_files = []
 
-def fix_tags(srr_file, rls_name, input_dir, output_dir, always_yes=False):
+def fix_tags(srr_file, rls_name, input_dir, output_dir, always_yes):
     if not srr_file.endswith(".srr"):
         raise AttributeError("The first parameter must be an SRR file.")
     if not os.path.isdir(input_dir):
@@ -69,12 +69,19 @@ def fix_tags(srr_file, rls_name, input_dir, output_dir, always_yes=False):
         musicf = os.path.join(input_dir, original_name)
         if not os.path.isfile(musicf):
             filenr = re.search("(\d{2,3})[-_]", original_name)
+            if not filenr:
+                filenr = re.search("([abcdxyXYABCD]{1,2}[123]{0,1})[-_]", original_name)
+            if not filenr:
+                print("original_name of mp3 in srr unknown %s" % original_name)
+                failures += 1
+                continue
             filenr = filenr.group(1)
             regex = "*" + filenr + "*.mp3"
             musicf = find(regex, input_dir)
             if not musicf is None and len(musicf) > 0:
                 musicf = musicf[0]
             else:
+                print("mp3 to rescene not found %s" % regex)
                 failures +=1
                 continue
 
@@ -200,13 +207,22 @@ def get_release_name(dir):
 
     return rls
 
-def process_dirs(dirs, output_dir):
+def rename_directory(dir, rls_name):
+    basedir = os.path.split(dir)
+    p = os.path.join(basedir[0], rls_name)
+    os.rename(dir, p)
+
+def process_dirs(dirs, output_dir, fix, rename, always_yes):
     for dir in dirs:
         rls = get_release_name(dir)
         if not rls:
             missing_files.append(dir)
             continue
 
+        if rename:
+            rename_directory(dir, rls['release'])
+        if not fix:
+            continue
         print("\t - Downloading SRR from srrdb.com")
         # download srr
         try:
@@ -216,7 +232,8 @@ def process_dirs(dirs, output_dir):
             missing_files.append(dir)
         else:
             print("%s" % srr_path)
-            if not fix_tags(srr_path, rls['release'], dir, output_dir):
+            if not fix_tags(srr_path, rls['release'], dir, output_dir,
+                    always_yes):
                 missing_files.append(dir)
 
 
@@ -234,6 +251,10 @@ def main(argv=None):
     parser.add_option("-o", "--output", dest="output_dir", metavar="DIR",
                     default=".", help="Specifies output directory. "
                     "The default output path is the current directory.")
+    parser.add_option("-r", "--rename", dest="rename", default=False,
+                    action="store_true",help="renames given directories to their original rls name")
+    parser.add_option("-x", "--fix-tags", dest="fix", default=False,
+                    action="store_true",help="tries to fix scene release of given directories and puts it into output dir")
     parser.add_option("-y", "--always-yes", dest="always_yes", default=False,
                     action="store_true",
                     help="assume Yes for all prompts")
@@ -250,7 +271,8 @@ def main(argv=None):
     (options, args) = parser.parse_args(args=argv)
     dirs = get_directories(options.input_dir)
 
-    process_dirs(dirs, options.output_dir)
+    process_dirs(dirs, options.output_dir, options.fix, options.rename,
+            options.always_yes)
     if len(missing_files) > 0:
         print("could not recover:")
         print(*missing_files, sep='\n')
