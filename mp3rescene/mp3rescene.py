@@ -142,12 +142,16 @@ def search_srrdb(rlsnames = [], names = []):
     else:
         print("%s" % SUCCESS)
 
-    if len(results) > 1:
-        # need to work out which rls to use
-        print("\t\t %s More than one release found matching release name %s" % (FAIL, results))
-        return False
-
     release = results[0]
+    if len(results) > 1:
+        if len(rlsnames):
+            for result in results:
+                if result in rlsnames:
+                    release = result
+                    break
+        else:
+            print("\t\t %s More than one release found matching release name %s" % (FAIL, results))
+            return False
     print("\t\t - Matched release: %s" % release['release'])
 
     return release
